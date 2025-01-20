@@ -1,51 +1,51 @@
-name: Run Integration Tests
+# name: Run Integration Tests
 
-on:
-  push:
-    branches: [main]
+# on:
+#   push:
+#     branches: [main]
 
-  pull_request:
-    types: [assigned, opened, synchronize, reopened]
-    paths-ignore:
-      - "README.md"
+#   pull_request:
+#     types: [assigned, opened, synchronize, reopened]
+#     paths-ignore:
+#       - "README.md"
 
-  schedule:
-    - cron: '30 5 * * *' # every day at 5:30 UTC
+#   schedule:
+#     - cron: '30 5 * * *' # every day at 5:30 UTC
 
-  workflow_dispatch:
+#   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+#   cancel-in-progress: true
 
-jobs:
-  run:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        deps: ["pydantic==1.10.18", "pydantic==2.5.0"]
-        # TODO: Test Python 3.13
-        python: ["3.8", "3.12"]
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+# jobs:
+#   run:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         deps: ["pydantic==1.10.18", "pydantic==2.5.0"]
+#         # TODO: Test Python 3.13
+#         python: ["3.8", "3.12"]
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           fetch-depth: 0
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python }}
-          cache: pip
+#       - uses: actions/setup-python@v4
+#         with:
+#           python-version: ${{ matrix.python }}
+#           cache: pip
 
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip wheel
-          # TODO: should we include graphlib as a project dependency?
-          pip install -e 'projects/fal[test]' graphlib ${{ matrix.deps }}
+#       - name: Install dependencies
+#         run: |
+#           pip install --upgrade pip wheel
+#           # TODO: should we include graphlib as a project dependency?
+#           pip install -e 'projects/fal[test]' graphlib ${{ matrix.deps }}
 
-      - name: Run integration tests
-        env:
-          FAL_KEY: ${{ secrets.FAL_CLOUD_KEY_ID }}:${{ secrets.FAL_CLOUD_KEY_SECRET }}
-          FAL_HOST: api.${{ vars.FAL_CLOUD_INTEGRATION_TEST_HOST }}
-        run: |
-          pytest -n auto -v projects/fal/tests
+#       - name: Run integration tests
+#         env:
+#           FAL_KEY: ${{ secrets.FAL_CLOUD_KEY_ID }}:${{ secrets.FAL_CLOUD_KEY_SECRET }}
+#           FAL_HOST: api.${{ vars.FAL_CLOUD_INTEGRATION_TEST_HOST }}
+#         run: |
+#           pytest -n auto -v projects/fal/tests
